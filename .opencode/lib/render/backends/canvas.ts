@@ -232,7 +232,7 @@ function renderBlockCanvas(L: Layout, t: any, theme: Theme) {
       L.dry = true
       const endY = drawRichText(L, codeRuns, innerX, L.y + padC, innerW, 13, 20, false)
       L.dry = dryBefore
-      const boxH = endY - L.y
+      const boxH = endY - L.y + padC
       if (push) L.ops.push({ type: "rect", x: L.left, y: L.y, w: L.contentW, h: boxH, color: c.codeBg, radius: 8 })
       drawRichText(L, codeRuns, innerX, L.y + padC, innerW, 13, 20, push)
       L.y += boxH + 16
