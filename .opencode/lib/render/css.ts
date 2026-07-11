@@ -1,4 +1,5 @@
 import type { Theme, ThemeColors } from "./types"
+import { CSS_FONT_FAMILY } from "./fonts"
 
 export const THEME_COLORS: Record<Theme, ThemeColors> = {
   light: {
@@ -78,7 +79,7 @@ export function themeCss(theme: Theme, colors = THEME_COLORS[theme]): string {
     html, body { margin: 0; padding: 0; }
     body {
       background: ${c.bg};
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Inter", Helvetica, Arial, sans-serif;
+      font-family: ${CSS_FONT_FAMILY};
       color: ${c.text};
       -webkit-font-smoothing: antialiased;
     }
@@ -121,7 +122,7 @@ export function themeCss(theme: Theme, colors = THEME_COLORS[theme]): string {
       padding: 0.2em 0.4em;
       margin: 0;
       font-size: 85%;
-      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-family: ${CSS_FONT_FAMILY};
       color: ${c.inlineCodeText};
       background-color: ${c.inlineCodeBg};
       border-radius: 6px;

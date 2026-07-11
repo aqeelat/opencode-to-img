@@ -1,8 +1,8 @@
-import { createCanvas, GlobalFonts } from "@napi-rs/canvas"
-import path from "path"
+import { createCanvas } from "@napi-rs/canvas"
 import { marked } from "marked"
 import { THEME_COLORS } from "../css"
 import { highlightRuns } from "../highlight"
+import { CSS_FONT_FAMILY, registerCanvasFonts } from "../fonts"
 import type { Renderer, Theme, ThemeColors } from "../types"
 
 interface Run {
@@ -19,24 +19,12 @@ type Op =
   | { type: "rect"; x: number; y: number; w: number; h: number; color: string; radius: number }
   | { type: "line"; x1: number; y1: number; x2: number; y2: number; color: string; width: number }
 
-const SANS = '"Inter", "Helvetica Neue", Helvetica, Arial, sans-serif'
-const MONO = 'Menlo, Consolas, "Liberation Mono", monospace'
-
-const fontDir = path.resolve(import.meta.dir, "../../../node_modules/@fontsource/inter/files")
-for (const [file, family] of [
-  ["inter-latin-400-normal.woff2", "Inter"],
-  ["inter-latin-400-italic.woff2", "Inter"],
-  ["inter-latin-600-normal.woff2", "Inter"],
-  ["inter-latin-700-normal.woff2", "Inter"],
-] as const) {
-  GlobalFonts.registerFromPath(path.join(fontDir, file), family)
-}
+registerCanvasFonts()
 
 function fontStr(r: Run, size: number): string {
   const style = r.italic ? "italic" : "normal"
   const weight = r.bold ? 700 : 400
-  const fam = r.mono ? MONO : SANS
-  return `${style} ${weight} ${size}px ${fam}`
+  return `${style} ${weight} ${size}px ${CSS_FONT_FAMILY}`
 }
 
 function inlineRuns(tokens: any, inherited: Partial<Run>, c: ThemeColors): Run[] {
@@ -314,7 +302,7 @@ function renderListCanvas(L: Layout, t: any, theme: Theme) {
         y: startY,
         text: marker,
         color: c.muted,
-        font: `normal 400 16px ${SANS}`,
+        font: `normal 400 16px ${CSS_FONT_FAMILY}`,
       })
     }
   })

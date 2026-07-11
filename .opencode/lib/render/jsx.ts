@@ -1,30 +1,14 @@
 import React from "react"
-import path from "path"
 import { marked } from "marked"
 import { THEME_COLORS } from "./css"
+import { FONT_FAMILY, loadFonts } from "./fonts"
 import { highlightRuns } from "./highlight"
 import type { Theme, ThemeColors } from "./types"
 
 const h = React.createElement
 type Style = Record<string, string | number>
 
-const fontDir = path.resolve(import.meta.dir, "../../node_modules/@fontsource/inter/files")
-
-export async function loadFonts() {
-  const entries = [
-    ["inter-latin-400-normal.woff", 400, "normal"],
-    ["inter-latin-400-italic.woff", 400, "italic"],
-    ["inter-latin-700-normal.woff", 700, "normal"],
-  ] as const
-  return Promise.all(
-    entries.map(async ([file, weight, style]) => ({
-      name: "Inter",
-      data: await Bun.file(path.join(fontDir, file)).arrayBuffer(),
-      weight,
-      style,
-    })),
-  )
-}
+export { loadFonts }
 
 function wordChunks(text: string): string[] {
   return (text.match(/\S+(?:\s+|$)|\s+/g) ?? [text])
@@ -78,7 +62,7 @@ function inlineNodes(tokens: any, inherited: Style, c: ThemeColors): React.React
                 backgroundColor: c.inlineCodeBg,
                 borderRadius: 5,
                 padding: "1px 5px",
-                fontFamily: "monospace",
+                fontFamily: FONT_FAMILY,
                 fontSize: 14,
               },
             },
@@ -145,7 +129,7 @@ function renderCode(t: any, c: ThemeColors, theme: Theme, key: string) {
         borderRadius: 8,
         padding: 16,
         marginBottom: 16,
-        fontFamily: "monospace",
+        fontFamily: FONT_FAMILY,
         fontSize: 13,
         lineHeight: 1.55,
       },
@@ -317,7 +301,7 @@ export function buildDocument(
         padding: "48px 56px",
         backgroundColor: fixedHeight ? "transparent" : c.bg,
         color: c.text,
-        fontFamily: "Inter",
+        fontFamily: FONT_FAMILY,
         fontSize: 16,
         lineHeight: 1.6,
       },
