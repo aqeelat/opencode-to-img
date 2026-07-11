@@ -122,6 +122,7 @@ export function themeCss(theme: Theme, colors = THEME_COLORS[theme]): string {
       margin: 0;
       font-size: 85%;
       font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      color: ${c.inlineCodeText};
       background-color: ${c.inlineCodeBg};
       border-radius: 6px;
     }

@@ -34,6 +34,7 @@ export async function captureMarkdown(request: CaptureRequest): Promise<CaptureR
       const { png } = await renderer.render(request.markdown, {
         theme: request.theme,
         width: request.width,
+        scale: request.scale,
         colors: request.colors,
       })
       const file = path.join(request.outputDir, `response-${suffix}-${backend}.png`)

@@ -4,6 +4,7 @@ export interface RenderOptions {
   theme: Theme
   width: number
   colors?: ThemeColors
+  scale?: number
 }
 
 export interface RenderResult {

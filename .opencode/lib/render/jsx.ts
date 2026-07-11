@@ -44,8 +44,12 @@ function codeChunks(text: string): string[] {
 function inlineNodes(tokens: any, inherited: Style, c: ThemeColors): React.ReactNode[] {
   const out: React.ReactNode[] = []
   const appendText = (text: string, style: Style) => {
-    for (const chunk of wordChunks(text)) {
-      out.push(h("span", { key: out.length, style }, chunk))
+    const lines = text.split("\n")
+    for (let i = 0; i < lines.length; i++) {
+      if (i > 0) out.push(h("span", { key: out.length, style: { width: "100%", height: 0 } }))
+      for (const chunk of wordChunks(lines[i])) {
+        out.push(h("span", { key: out.length, style }, chunk))
+      }
     }
   }
   for (const t of tokens ?? []) {
@@ -319,5 +323,28 @@ export function buildDocument(
       },
     },
     ...marked.lexer(markdown).map((token: any, index: number) => renderBlock(token, c, theme, `${index}`)),
+  )
+}
+
+export function buildScaledDocument(
+  markdown: string,
+  theme: Theme,
+  width: number,
+  scale: number,
+  pixelHeight: number,
+  colors: ThemeColors = THEME_COLORS[theme],
+) {
+  return h(
+    "div",
+    {
+      style: {
+        display: "flex",
+        transform: `scale(${scale})`,
+        transformOrigin: "top left",
+        width,
+        height: pixelHeight / scale,
+      },
+    },
+    buildDocument(markdown, theme, width, true, colors),
   )
 }

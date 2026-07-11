@@ -2,8 +2,11 @@ import path from "path"
 import { getRenderer, listBackends, type BackendName } from "./lib/render/registry"
 
 function arg(name: string, fallback?: string): string | undefined {
-  const i = process.argv.indexOf(`--${name}`)
-  return i >= 0 && i + 1 < process.argv.length ? process.argv[i + 1] : fallback
+  const flag = `--${name}`
+  const eq = `${flag}=`
+  const a = process.argv.find((a) => a === flag || a.startsWith(eq))
+  if (!a) return fallback
+  return a === flag ? process.argv[process.argv.indexOf(a) + 1] : a.slice(eq.length)
 }
 
 async function main() {
@@ -17,6 +20,7 @@ async function main() {
   const generator = arg("generator", "all")
   const label = arg("label", "response")
   const width = Number(arg("width", "1000"))
+  const scale = Number(arg("scale", "2"))
   const outputDir = arg("output", "benchmark")
 
   const targets: BackendName[] = generator === "all" ? [...listBackends()] : [generator as BackendName]
@@ -27,7 +31,7 @@ async function main() {
     const memBefore = process.memoryUsage().rss
     try {
       const renderer = await getRenderer(backend)
-      const { png } = await renderer.render(markdown, { theme, width })
+      const { png } = await renderer.render(markdown, { theme, width, scale })
       const ms = Math.round(performance.now() - start)
       const memAfter = process.memoryUsage().rss
       const memDelta = Math.round((memAfter - memBefore) / 1024 / 1024)

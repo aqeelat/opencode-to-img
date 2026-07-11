@@ -20,6 +20,7 @@ function findFirefox(): string {
 export const FirefoxRenderer: Renderer = {
   name: "firefox",
   async render(markdown, options) {
+    const scale = options.scale ?? 2
     const browser = await puppeteer.launch({
       browser: "firefox",
       executablePath: findFirefox(),
@@ -31,6 +32,11 @@ export const FirefoxRenderer: Renderer = {
       const page = await browser.newPage()
       await page.setDefaultNavigationTimeout(60000)
       await page.setContent(markdownToHtml(markdown, options.theme, options.colors), { waitUntil: "load" })
+      if (scale !== 1) {
+        await page.addStyleTag({
+          content: `.markdown-body { transform: scale(${scale}); transform-origin: top left; width: ${options.width}px !important; }`,
+        })
+      }
       const document = await page.$(".markdown-body")
       if (!document) throw new Error("firefox backend: rendered document was not found")
       const png = await document.screenshot({ type: "png" })

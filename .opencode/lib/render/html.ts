@@ -13,7 +13,7 @@ const instance = new Marked(
       return hljs.highlight(code, { language }).value
     },
   }),
-  { gfm: true, breaks: false },
+  { gfm: true, breaks: true },
 )
 
 export function markdownToHtml(markdown: string, theme: Theme, colors: ThemeColors = THEME_COLORS[theme]): string {

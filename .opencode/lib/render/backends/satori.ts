@@ -1,4 +1,4 @@
-import { Resvg } from "@resvg/resvg-js"
+import sharp from "sharp"
 import satori from "satori"
 import { THEME_COLORS } from "../css"
 import { buildDocument, loadFonts } from "../jsx"
@@ -11,15 +11,17 @@ export const SatoriRenderer: Renderer = {
     if (options.width < 640) {
       throw new Error("satori backend: widths below 640px are not supported; use canvas, og, takumi, or a browser backend")
     }
+    const scale = options.scale ?? 2
     const fonts = await loadFonts()
     const colors = options.colors ?? THEME_COLORS[options.theme]
-    const png = await renderAndCrop(options.width, colors.bg, async (height) => {
-      const svg = await satori(buildDocument(markdown, options.theme, options.width, true, colors), {
-        width: options.width,
-        height,
-        fonts,
-      })
-      return new Uint8Array(new Resvg(svg).render().asPng())
+    const pixelWidth = options.width * scale
+    const png = await renderAndCrop(pixelWidth, colors.bg, async (pixelHeight) => {
+      const svg = await satori(
+        buildDocument(markdown, options.theme, options.width, true, colors),
+        { width: options.width, height: Math.ceil(pixelHeight / scale), fonts },
+      )
+      const buf = await sharp(Buffer.from(svg), { density: 72 * scale }).png().toBuffer()
+      return new Uint8Array(buf)
     })
     return { backend: this.name, png }
   },

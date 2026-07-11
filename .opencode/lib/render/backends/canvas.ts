@@ -170,9 +170,9 @@ function drawRichText(
               L.ops.push({
                 type: "rect",
                 x: cx,
-                y: cy + 2,
+                y: cy - 1,
                 w,
-                h: lineHeight - 4,
+                h: size + 5,
                 color: L.c.inlineCodeBg,
                 radius: 5,
               })
@@ -402,6 +402,7 @@ export const CanvasRenderer: Renderer = {
   async render(markdown, options) {
     const theme: Theme = options.theme
     const c = options.colors ?? THEME_COLORS[theme]
+    const scale = options.scale ?? 2
     const tokens = marked.lexer(markdown)
 
     const measureCanvas = createCanvas(options.width, 10)
@@ -410,8 +411,9 @@ export const CanvasRenderer: Renderer = {
     for (const t of tokens) renderBlockCanvas(mL, t, theme)
     const totalH = Math.ceil(mL.y + 48)
 
-    const canvas = createCanvas(options.width, totalH)
+    const canvas = createCanvas(options.width * scale, totalH * scale)
     const ctx = canvas.getContext("2d")
+    ctx.scale(scale, scale)
     ctx.fillStyle = c.bg
     ctx.fillRect(0, 0, options.width, totalH)
 

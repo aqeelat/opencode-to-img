@@ -109,6 +109,7 @@ const tui: TuiPlugin = async (api) => {
           backend,
           outputDir,
           width: 1000,
+          scale: 2,
           theme,
           colors,
         })
