@@ -137,7 +137,7 @@ function renderCode(t: any, c: ThemeColors, theme: Theme, key: string) {
     ...lines.map((line, li) =>
       h(
         "div",
-        { key: li, style: { display: "flex", flexDirection: "row", flexWrap: "wrap", minHeight: 20 } },
+        { key: li, style: { display: "flex", flexDirection: "row", flexWrap: "wrap" } },
         ...(line.length
           ? line.flatMap((run, ri) =>
               codeChunks(run.text).map((chunk, ci) =>

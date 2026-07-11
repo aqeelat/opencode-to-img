@@ -35,7 +35,7 @@ async function main() {
       const ms = Math.round(performance.now() - start)
       const memAfter = process.memoryUsage().rss
       const memDelta = Math.round((memAfter - memBefore) / 1024 / 1024)
-      const file = path.join(outputDir, `${backend}-${label}.png`)
+      const file = path.join(outputDir, `${label}-${backend}.png`)
       await Bun.write(file, png)
       console.log(`${backend}\t${ms}ms\t+${memDelta}MB\t${file}`)
     } catch (e) {

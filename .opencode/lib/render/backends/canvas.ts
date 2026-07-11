@@ -27,6 +27,21 @@ function fontStr(r: Run, size: number): string {
   return `${style} ${weight} ${size}px ${CSS_FONT_FAMILY}`
 }
 
+const metricsCache = new Map<string, { ascent: number; descent: number }>()
+
+function fm(ctx: CanvasRenderingContext2D, font: string) {
+  let r = metricsCache.get(font)
+  if (!r) {
+    const pf = ctx.font
+    ctx.font = font
+    const m = ctx.measureText("Hy")
+    r = { ascent: m.fontBoundingBoxAscent, descent: m.fontBoundingBoxDescent }
+    metricsCache.set(font, r)
+    ctx.font = pf
+  }
+  return r
+}
+
 function inlineRuns(tokens: any, inherited: Partial<Run>, c: ThemeColors): Run[] {
   const out: Run[] = []
   for (const t of tokens ?? []) {
@@ -116,7 +131,9 @@ function drawRichText(
 ): number {
   let cx = x
   let cy = y
-  L.ctx.textBaseline = "top"
+  const refFont = runs.length > 0 ? fontStr(runs[0], size) : `normal 400 ${size}px ${CSS_FONT_FAMILY}`
+  const m = fm(L.ctx, refFont)
+  const bl = m.ascent + Math.floor((lineHeight - m.ascent - m.descent) / 2)
   for (const run of runs) {
     const segments = run.text.split("\n")
     for (let si = 0; si < segments.length; si++) {
@@ -143,7 +160,7 @@ function drawRichText(
                 cy += lineHeight
               }
               if (push) {
-                L.ops.push({ type: "text", x: cx, y: cy, text: char, color: run.color, font: fontStr(run, size) })
+                L.ops.push({ type: "text", x: cx, y: cy + bl, text: char, color: run.color, font: fontStr(run, size) })
               }
               cx += charW
             }
@@ -158,14 +175,14 @@ function drawRichText(
               L.ops.push({
                 type: "rect",
                 x: cx,
-                y: cy - 1,
+                y: cy + bl - m.ascent,
                 w,
-                h: size + 5,
+                h: m.ascent + m.descent,
                 color: L.c.inlineCodeBg,
                 radius: 5,
               })
             }
-            L.ops.push({ type: "text", x: cx + padding, y: cy, text: tok, color: run.color, font: fontStr(run, size) })
+            L.ops.push({ type: "text", x: cx + padding, y: cy + bl, text: tok, color: run.color, font: fontStr(run, size) })
           }
           cx += w
         }
@@ -225,15 +242,16 @@ function renderBlockCanvas(L: Layout, t: any, theme: Theme) {
       const oldLeft = L.left
       L.left = oldLeft + 16
       const startY = L.y
-      for (const tok of t.tokens ?? []) {
+      const toks = t.tokens ?? []
+      for (let i = 0; i < toks.length; i++) {
         const runs =
-          tok.type === "paragraph"
-            ? inlineRuns(tok.tokens, { color: c.muted }, c)
-            : inlineRuns(tok.tokens ?? [{ type: "text", text: tok.text ?? "" }], { color: c.muted }, c)
+          toks[i].type === "paragraph"
+            ? inlineRuns(toks[i].tokens, { color: c.muted }, c)
+            : inlineRuns(toks[i].tokens ?? [{ type: "text", text: toks[i].text ?? "" }], { color: c.muted }, c)
         L.y = drawRichText(L, runs, L.left, L.y, L.contentW, 16, 26, push)
-        L.y += 8
+        if (i < toks.length - 1) L.y += 8
       }
-      const h = L.y - startY
+      const h = L.y - startY + 4
       if (push) {
         L.ops.push({ type: "rect", x: oldLeft, y: startY, w: 4, h, color: c.quoteBorder, radius: 2 })
       }
@@ -275,6 +293,9 @@ function renderListCanvas(L: Layout, t: any, theme: Theme) {
   const c = L.c
   const markerX = L.left
   const indent = 24
+  const markerFont = `normal 400 16px ${CSS_FONT_FAMILY}`
+  const markerM = fm(L.ctx, markerFont)
+  const markerBl = markerM.ascent + Math.floor((26 - markerM.ascent - markerM.descent) / 2)
   ;(t.items ?? []).forEach((item: any, i: number) => {
     const marker = t.ordered ? `${(t.start ?? 1) + i}.` : "•"
     const contentX = markerX + indent
@@ -285,10 +306,7 @@ function renderListCanvas(L: Layout, t: any, theme: Theme) {
       if (tok.type === "list") {
         renderListCanvas(L, tok, theme)
       } else {
-        const runs =
-          tok.type === "text"
-            ? inlineRuns(tok.tokens ?? [{ type: "text", text: tok.text ?? "" }], { color: c.text }, c)
-            : inlineRuns(tok.tokens ?? [{ type: "text", text: tok.text ?? "" }], { color: c.text }, c)
+        const runs = inlineRuns(tok.tokens ?? [{ type: "text", text: tok.text ?? "" }], { color: c.text }, c)
         L.y = drawRichText(L, runs, contentX, L.y, L.right - contentX, 16, 26, push)
         L.y += 4
       }
@@ -299,10 +317,10 @@ function renderListCanvas(L: Layout, t: any, theme: Theme) {
       L.ops.push({
         type: "text",
         x: markerX,
-        y: startY,
+        y: startY + markerBl,
         text: marker,
         color: c.muted,
-        font: `normal 400 16px ${CSS_FONT_FAMILY}`,
+        font: markerFont,
       })
     }
   })
@@ -315,6 +333,12 @@ function renderTableCanvas(L: Layout, t: any) {
   const rows = t.rows ?? []
   const n = Math.max(1, headers.length, ...rows.map((row: any[]) => row.length))
   const startY = L.y
+
+  const tableFont = `normal 400 14px ${CSS_FONT_FAMILY}`
+  const tm = fm(L.ctx, tableFont)
+  const cellLineH = Math.ceil((tm.ascent + tm.descent) * 1.5)
+  const cellPadY = 7
+  const minRowH = tm.ascent + tm.descent + cellPadY * 2
 
   const allRows = headers.length ? [headers, ...rows] : rows
   const preferred = Array.from({ length: n }, (_, ci) => {
@@ -335,19 +359,19 @@ function renderTableCanvas(L: Layout, t: any) {
 
   let rowY = startY
   const drawRow = (cells: any[], bold: boolean, bg: boolean) => {
-    let rowHeight = 38
+    let rowHeight = minRowH
     let cx = L.left
     const cellRuns = colWidths.map((width, ci) => {
       const runs = inlineRuns(cells[ci]?.tokens ?? [], { color: bold ? c.heading : c.text, bold }, c)
-      const endY = drawRichText(L, runs, cx + 12, rowY + 9, width - 24, 14, 21, false)
-      rowHeight = Math.max(rowHeight, endY - rowY + 8)
+      const endY = drawRichText(L, runs, cx + 12, rowY + cellPadY, width - 24, 14, cellLineH, false)
+      rowHeight = Math.max(rowHeight, endY - rowY + cellPadY)
       cx += width
       return runs
     })
     if (push && bg) L.ops.push({ type: "rect", x: L.left, y: rowY, w: L.contentW, h: rowHeight, color: c.codeBg, radius: 0 })
     cx = L.left
     cellRuns.forEach((runs, ci) => {
-      drawRichText(L, runs, cx + 12, rowY + 9, colWidths[ci] - 24, 14, 21, push)
+      drawRichText(L, runs, cx + 12, rowY + cellPadY, colWidths[ci] - 24, 14, cellLineH, push)
       cx += colWidths[ci]
     })
     if (push) {
@@ -408,12 +432,12 @@ export const CanvasRenderer: Renderer = {
     const L = new Layout(ctx, options.width, c)
     for (const t of tokens) renderBlockCanvas(L, t, theme)
 
+    ctx.textBaseline = "alphabetic"
     for (const op of L.ops) {
       if (op.type === "text") {
         if (op.color === "transparent") continue
         ctx.font = op.font
         ctx.fillStyle = op.color
-        ctx.textBaseline = "top"
         ctx.fillText(op.text, op.x, op.y)
       } else if (op.type === "rect") {
         if (op.color === "transparent") continue
