@@ -1,14 +1,12 @@
 import React from "react"
 import { marked } from "marked"
 import { THEME_COLORS } from "./css"
-import { FONT_FAMILY, loadFonts } from "./fonts"
+import { FONT_FAMILY } from "./fonts"
 import { highlightRuns } from "./highlight"
 import type { Theme, ThemeColors } from "./types"
 
 const h = React.createElement
 type Style = Record<string, string | number>
-
-export { loadFonts }
 
 function wordChunks(text: string): string[] {
   return (text.match(/\S+(?:\s+|$)|\s+/g) ?? [text])
@@ -105,7 +103,7 @@ function inlineBlock(tokens: any, c: ThemeColors, style: Style, key: string) {
 
 function codeLines(text: string, lang: string | undefined, theme: Theme, c: ThemeColors) {
   const lines: Array<Array<{ text: string; color: string }>> = [[]]
-  for (const run of highlightRuns(text, lang, theme, c.codeText, c.syntax)) {
+  for (const run of highlightRuns(text, lang, c.codeText, c.syntax)) {
     const parts = run.text.split("\n")
     parts.forEach((part, index) => {
       if (part) lines[lines.length - 1].push({ text: part, color: run.color })

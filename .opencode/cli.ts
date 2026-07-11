@@ -1,5 +1,5 @@
 import path from "path"
-import { getRenderer, listBackends, type BackendName } from "./lib/render/registry"
+import { getRenderer, BACKENDS, type BackendName } from "./lib/render/registry"
 
 function arg(name: string, fallback?: string): string | undefined {
   const flag = `--${name}`
@@ -23,7 +23,7 @@ async function main() {
   const scale = Number(arg("scale", "2"))
   const outputDir = arg("output", "benchmark")
 
-  const targets: BackendName[] = generator === "all" ? [...listBackends()] : [generator as BackendName]
+  const targets: BackendName[] = generator === "all" ? [...BACKENDS] : [generator as BackendName]
   const markdown = await Bun.file(file).text()
 
   for (const backend of targets) {

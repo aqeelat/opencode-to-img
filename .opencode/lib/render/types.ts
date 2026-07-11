@@ -8,7 +8,6 @@ export interface RenderOptions {
 }
 
 export interface RenderResult {
-  backend: string
   png: Uint8Array
 }
 

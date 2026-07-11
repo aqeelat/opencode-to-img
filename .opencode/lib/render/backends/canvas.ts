@@ -10,7 +10,6 @@ interface Run {
   color: string
   bold: boolean
   italic: boolean
-  mono: boolean
   inlineCode: boolean
 }
 
@@ -32,12 +31,10 @@ const metricsCache = new Map<string, { ascent: number; descent: number }>()
 function fm(ctx: CanvasRenderingContext2D, font: string) {
   let r = metricsCache.get(font)
   if (!r) {
-    const pf = ctx.font
     ctx.font = font
     const m = ctx.measureText("Hy")
     r = { ascent: m.fontBoundingBoxAscent, descent: m.fontBoundingBoxDescent }
     metricsCache.set(font, r)
-    ctx.font = pf
   }
   return r
 }
@@ -54,7 +51,6 @@ function inlineRuns(tokens: any, inherited: Partial<Run>, c: ThemeColors): Run[]
             color: inherited.color ?? c.text,
             bold: !!inherited.bold,
             italic: !!inherited.italic,
-            mono: !!inherited.mono,
             inlineCode: !!inherited.inlineCode,
           })
         break
@@ -70,7 +66,6 @@ function inlineRuns(tokens: any, inherited: Partial<Run>, c: ThemeColors): Run[]
           color: c.inlineCodeText,
           bold: !!inherited.bold,
           italic: false,
-          mono: true,
           inlineCode: true,
         })
         break
@@ -78,7 +73,6 @@ function inlineRuns(tokens: any, inherited: Partial<Run>, c: ThemeColors): Run[]
         out.push(...inlineRuns(t.tokens, { ...inherited, color: c.accent }, c))
         break
       case "br":
-        out.push({ text: "\n", color: c.text, bold: false, italic: false, mono: false, inlineCode: false })
         break
       default:
         out.push({
@@ -86,7 +80,6 @@ function inlineRuns(tokens: any, inherited: Partial<Run>, c: ThemeColors): Run[]
           color: inherited.color ?? c.text,
           bold: !!inherited.bold,
           italic: !!inherited.italic,
-          mono: !!inherited.mono,
           inlineCode: !!inherited.inlineCode,
         })
     }
@@ -217,12 +210,11 @@ function renderBlockCanvas(L: Layout, t: any, theme: Theme) {
       break
     }
     case "code": {
-      const codeRuns: Run[] = highlightRuns(t.text, t.lang, theme, c.codeText, c.syntax).map((r) => ({
+      const codeRuns: Run[] = highlightRuns(t.text, t.lang, c.codeText, c.syntax).map((r) => ({
         text: r.text,
         color: r.color,
         bold: false,
         italic: false,
-        mono: true,
         inlineCode: false,
       }))
       const padC = 16
@@ -281,7 +273,6 @@ function renderBlockCanvas(L: Layout, t: any, theme: Theme) {
     default: {
       const text = t.text ?? t.raw ?? ""
       if (text) {
-        L.y = drawRichText(L, [{ text, color: c.text, bold: false, italic: false, mono: false, inlineCode: false }], L.left, L.y, L.contentW, 16, 26, push)
         L.y += 12
       }
     }
@@ -454,6 +445,6 @@ export const CanvasRenderer: Renderer = {
     }
 
     const png = canvas.toBuffer("image/png")
-    return { backend: this.name, png: new Uint8Array(png) }
+    return { png: new Uint8Array(png) }
   },
 }

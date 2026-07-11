@@ -1,5 +1,5 @@
 import path from "path"
-import { getRenderer, listBackends } from "./render/registry"
+import { getRenderer, BACKENDS } from "./render/registry"
 import type { BackendName } from "./render/registry"
 import type { RenderOptions } from "./render/types"
 
@@ -23,7 +23,7 @@ function timestamp(): string {
 }
 
 export async function captureMarkdown(request: CaptureRequest): Promise<CaptureResult> {
-  const targets = request.backend === "all" ? [...listBackends()] : [request.backend]
+  const targets = request.backend === "all" ? [...BACKENDS] : [request.backend]
   const files: string[] = []
   const failures: CaptureResult["failures"] = []
   const suffix = timestamp()

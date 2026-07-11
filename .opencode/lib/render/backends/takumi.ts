@@ -19,6 +19,6 @@ export const TakumiRenderer: Renderer = {
       )
       return new Uint8Array(buf)
     })
-    return { backend: this.name, png }
+    return { png }
   },
 }

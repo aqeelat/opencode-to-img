@@ -48,7 +48,7 @@ export const ChromeRenderer: Renderer = {
       const document = await page.$(".markdown-body")
       if (!document) throw new Error("chrome backend: rendered document was not found")
       const png = await document.screenshot({ type: "png" })
-      return { backend: this.name, png: new Uint8Array(png as Uint8Array) }
+      return { png: new Uint8Array(png as Uint8Array) }
     } finally {
       await browser.close()
     }

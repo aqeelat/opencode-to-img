@@ -1,7 +1,8 @@
 import sharp from "sharp"
 import satori from "satori"
 import { THEME_COLORS } from "../css"
-import { buildDocument, loadFonts } from "../jsx"
+import { buildDocument } from "../jsx"
+import { loadFonts } from "../fonts"
 import { renderAndCrop } from "../raster"
 import type { Renderer } from "../types"
 
@@ -23,6 +24,6 @@ export const SatoriRenderer: Renderer = {
       const buf = await sharp(Buffer.from(svg), { density: 72 * scale }).png().toBuffer()
       return new Uint8Array(buf)
     })
-    return { backend: this.name, png }
+    return { png }
   },
 }

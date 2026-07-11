@@ -3,10 +3,6 @@ import type { Renderer } from "./types"
 export const BACKENDS = ["canvas", "og", "satori", "takumi", "chrome", "firefox"] as const
 export type BackendName = (typeof BACKENDS)[number]
 
-export function listBackends(): readonly string[] {
-  return BACKENDS
-}
-
 export async function getRenderer(name: string): Promise<Renderer> {
   switch (name) {
     case "canvas": {

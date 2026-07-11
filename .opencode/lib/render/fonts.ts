@@ -2,7 +2,7 @@ import path from "path"
 import { GlobalFonts } from "@napi-rs/canvas"
 
 export const FONT_FAMILY = "JetBrains Mono"
-export const FONT_DIR = path.resolve(import.meta.dir, "../../assets/fonts")
+const FONT_DIR = path.resolve(import.meta.dir, "../../assets/fonts")
 
 const FONT_FILES = [
   ["JetBrainsMono-Regular.ttf", 400, "normal"],

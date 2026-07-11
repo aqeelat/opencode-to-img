@@ -1,6 +1,7 @@
 import { ImageResponse } from "@vercel/og"
 import { THEME_COLORS } from "../css"
-import { buildScaledDocument, loadFonts } from "../jsx"
+import { buildScaledDocument } from "../jsx"
+import { loadFonts } from "../fonts"
 import { renderAndCrop } from "../raster"
 import type { Renderer } from "../types"
 
@@ -18,6 +19,6 @@ export const OgRenderer: Renderer = {
       )
       return new Uint8Array(await response.arrayBuffer())
     })
-    return { backend: this.name, png }
+    return { png }
   },
 }
