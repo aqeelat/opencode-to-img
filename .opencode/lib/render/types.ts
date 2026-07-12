@@ -12,7 +12,6 @@ export interface RenderResult {
 }
 
 export interface Renderer {
-  name: string
   render(markdown: string, options: RenderOptions): Promise<RenderResult>
 }
 

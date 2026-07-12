@@ -284,7 +284,6 @@ export function buildDocument(
   markdown: string,
   theme: Theme,
   width: number,
-  fixedHeight = true,
   colors: ThemeColors = THEME_COLORS[theme],
 ) {
   const c = colors
@@ -294,10 +293,9 @@ export function buildDocument(
       style: {
         display: "flex",
         flexDirection: "column",
-        width: fixedHeight ? "100%" : width,
-        height: fixedHeight ? "100%" : "auto",
+        width,
         padding: "48px 56px",
-        backgroundColor: fixedHeight ? "transparent" : c.bg,
+        backgroundColor: c.bg,
         color: c.text,
         fontFamily: FONT_FAMILY,
         fontSize: 16,

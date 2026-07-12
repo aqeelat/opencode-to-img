@@ -408,7 +408,6 @@ function fillRoundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: n
 }
 
 export const CanvasRenderer: Renderer = {
-  name: "canvas",
   async render(markdown, options) {
     const theme: Theme = options.theme
     const c = options.colors ?? THEME_COLORS[theme]

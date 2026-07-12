@@ -6,7 +6,6 @@ import { loadFonts } from "../fonts"
 import type { Renderer } from "../types"
 
 export const SatoriRenderer: Renderer = {
-  name: "satori",
   async render(markdown, options) {
     if (options.width < 640) {
       throw new Error("satori backend: widths below 640px are not supported")
@@ -15,7 +14,7 @@ export const SatoriRenderer: Renderer = {
     const fonts = await loadFonts()
     const colors = options.colors ?? THEME_COLORS[options.theme]
     const svg = await satori(
-      buildDocument(markdown, options.theme, options.width, false, colors),
+      buildDocument(markdown, options.theme, options.width, colors),
       { width: options.width, fonts },
     )
     const buf = await sharp(Buffer.from(svg), { density: 72 * scale }).png().toBuffer()

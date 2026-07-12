@@ -6,7 +6,6 @@ import { loadFonts } from "../fonts"
 import type { Renderer as IRenderer } from "../types"
 
 export const TakumiRenderer: IRenderer = {
-  name: "takumi",
   async render(markdown, options) {
     const scale = options.scale ?? 2
     const colors = options.colors ?? THEME_COLORS[options.theme]
@@ -14,7 +13,7 @@ export const TakumiRenderer: IRenderer = {
     const renderer = new Renderer()
     for (const font of fonts) await renderer.registerFont(font)
 
-    const element = buildDocument(markdown, options.theme, options.width, false, colors)
+    const element = buildDocument(markdown, options.theme, options.width, colors)
     const { node, stylesheets } = await fromJsx(element)
     const buf = await renderer.render(node, {
       width: options.width * scale,
