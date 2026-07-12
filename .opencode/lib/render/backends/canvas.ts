@@ -11,6 +11,7 @@ interface Run {
   bold: boolean
   italic: boolean
   inlineCode: boolean
+  pre: boolean
 }
 
 type Op =
@@ -52,6 +53,7 @@ function inlineRuns(tokens: any, inherited: Partial<Run>, c: ThemeColors): Run[]
             bold: !!inherited.bold,
             italic: !!inherited.italic,
             inlineCode: !!inherited.inlineCode,
+            pre: false,
           })
         break
       case "strong":
@@ -67,12 +69,14 @@ function inlineRuns(tokens: any, inherited: Partial<Run>, c: ThemeColors): Run[]
           bold: !!inherited.bold,
           italic: false,
           inlineCode: true,
+          pre: false,
         })
         break
       case "link":
         out.push(...inlineRuns(t.tokens, { ...inherited, color: c.accent }, c))
         break
       case "br":
+        out.push({ text: "\n", color: c.text, bold: false, italic: false, inlineCode: false, pre: false })
         break
       default:
         out.push({
@@ -81,6 +85,7 @@ function inlineRuns(tokens: any, inherited: Partial<Run>, c: ThemeColors): Run[]
           bold: !!inherited.bold,
           italic: !!inherited.italic,
           inlineCode: !!inherited.inlineCode,
+          pre: false,
         })
     }
   }
@@ -132,11 +137,11 @@ function drawRichText(
     for (let si = 0; si < segments.length; si++) {
       const seg = segments[si]
       L.ctx.font = fontStr(run, size)
-      const tokens = run.inlineCode ? [seg] : seg.split(/(\s+)/)
+      const tokens = (run.inlineCode || run.pre) ? [seg] : seg.split(/(\s+)/)
       for (const tok of tokens) {
         if (tok === "") continue
         if (/^\s+$/.test(tok)) {
-          if (cx === x) continue
+          if (cx === x && !run.pre) continue
           cx += L.ctx.measureText(tok).width
           if (cx > x + maxWidth) {
             cx = x
@@ -216,6 +221,7 @@ function renderBlockCanvas(L: Layout, t: any, theme: Theme) {
         bold: false,
         italic: false,
         inlineCode: false,
+        pre: true,
       }))
       const padC = 16
       const innerX = L.left + padC
@@ -273,6 +279,7 @@ function renderBlockCanvas(L: Layout, t: any, theme: Theme) {
     default: {
       const text = t.text ?? t.raw ?? ""
       if (text) {
+        L.y = drawRichText(L, [{ text, color: c.text, bold: false, italic: false, inlineCode: false, pre: false }], L.left, L.y, L.contentW, 16, 26, push)
         L.y += 12
       }
     }
