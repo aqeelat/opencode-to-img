@@ -307,26 +307,3 @@ export function buildDocument(
     ...marked.lexer(markdown).map((token: any, index: number) => renderBlock(token, c, theme, `${index}`)),
   )
 }
-
-export function buildScaledDocument(
-  markdown: string,
-  theme: Theme,
-  width: number,
-  scale: number,
-  pixelHeight: number,
-  colors: ThemeColors = THEME_COLORS[theme],
-) {
-  return h(
-    "div",
-    {
-      style: {
-        display: "flex",
-        transform: `scale(${scale})`,
-        transformOrigin: "top left",
-        width,
-        height: pixelHeight / scale,
-      },
-    },
-    buildDocument(markdown, theme, width, true, colors),
-  )
-}
