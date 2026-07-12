@@ -138,7 +138,7 @@ const tui: TuiPlugin = async (api) => {
         description: backend === "canvas" ? "Default, self-contained renderer" : `Render with ${backend}`,
         value: backend as CaptureBackend,
       })),
-      { title: "all", description: "Try every backend; unavailable browsers are skipped", value: "all" },
+      { title: "all", description: "Try every backend", value: "all" },
     ]
     for (const option of options) {
       option.onSelect = () => chooseTheme(markdown, option.value, outputDir)

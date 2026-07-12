@@ -19,7 +19,7 @@ Options:
   --file=<path>        Markdown file (reads from stdin if omitted)
   --output=<path>      Output PNG path (single backend only)
   --output-dir=<dir>   Output directory for PNGs (default: .)
-  --generator=<name>   canvas | og | satori | takumi | chrome | firefox | all (default: canvas)
+  --generator=<name>   canvas | satori | takumi | all (default: canvas)
   --theme=<name>       dark | light (default: dark)
   --width=<px>         Logical width (default: 1000)
   --scale=<n>          Pixel scale factor (default: 2)

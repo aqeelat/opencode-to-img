@@ -1,6 +1,6 @@
 import type { Renderer } from "./types"
 
-export const BACKENDS = ["canvas", "satori", "takumi", "chrome", "firefox"] as const
+export const BACKENDS = ["canvas", "satori", "takumi"] as const
 export type BackendName = (typeof BACKENDS)[number]
 
 export async function getRenderer(name: string): Promise<Renderer> {
@@ -16,14 +16,6 @@ export async function getRenderer(name: string): Promise<Renderer> {
     case "takumi": {
       const m = await import("./backends/takumi")
       return m.TakumiRenderer
-    }
-    case "chrome": {
-      const m = await import("./backends/chrome")
-      return m.ChromeRenderer
-    }
-    case "firefox": {
-      const m = await import("./backends/firefox")
-      return m.FirefoxRenderer
     }
     default:
       throw new Error(
