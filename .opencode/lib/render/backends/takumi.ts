@@ -12,7 +12,7 @@ export const TakumiRenderer: IRenderer = {
     const colors = options.colors ?? THEME_COLORS[options.theme]
     const fonts = await loadFonts()
     const renderer = new Renderer()
-    await renderer.loadFonts(fonts)
+    for (const font of fonts) await renderer.registerFont(font)
 
     const element = buildDocument(markdown, options.theme, options.width, false, colors)
     const { node, stylesheets } = await fromJsx(element)
